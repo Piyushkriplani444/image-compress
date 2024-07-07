@@ -11,6 +11,8 @@ const bodyParser = require("body-parser");
 const httpContext = require("express-http-context");
 const totalCPUs = require("os").cpus().length;
 const debug = require("debug")("image:server");
+const uuid = require("node-uuid");
+const imageCompressRoute = require("./server/imageUpload/routes/index");
 
 if (cluster.isMaster) {
   console.log(`Number of CPUs is ${totalCPUs}`);
@@ -60,7 +62,21 @@ if (cluster.isMaster) {
     next();
   });
 
+  let resource = "";
+  let opsys = process.platform;
+
+  if (opsys === "win32" || opsys === "win64") {
+    resource = "C:";
+  } else if (opsys === "linux") {
+    resource = "/home";
+  }
+  app.use("/share", express.static(resource + "/share"));
+
+  app.use("/uploads", express.static(resource + "/uploads"));
+
   const port = process.env.REACT_APP_SERVER_PORT || 3000;
+
+  app.use("/api", imageCompressRoute);
 
   const server = http.createServer(app);
 
