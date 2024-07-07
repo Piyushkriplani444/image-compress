@@ -9,6 +9,8 @@ const http = require("http");
 const { default: helmet } = require("helmet");
 const bodyParser = require("body-parser");
 const httpContext = require("express-http-context");
+const totalCPUs = require("os").cpus().length;
+const debug = require("debug")("image:server");
 
 if (cluster.isMaster) {
   console.log(`Number of CPUs is ${totalCPUs}`);
